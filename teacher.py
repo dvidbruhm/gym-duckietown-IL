@@ -1,12 +1,11 @@
 import numpy as np
-
+import random
 
 # parameters for the pure pursuit controller
 POSITION_THRESHOLD = 0.04
 REF_VELOCITY = 0.8
 GAIN = 10
 FOLLOWING_DISTANCE = 0.3
-
 
 class PurePursuitExpert:
     def __init__(self, env, ref_velocity=REF_VELOCITY, position_threshold=POSITION_THRESHOLD,
@@ -17,7 +16,7 @@ class PurePursuitExpert:
         self.ref_velocity = ref_velocity
         self.position_threshold = position_threshold
 
-    def predict(self, observation):  # we don't really care about the observation for this implementation
+    def predict(self, observation, user_input):  # we don't really care about the observation for this implementation
         closest_point, closest_tangent = self.env.closest_curve_point(self.env.cur_pos, self.env.cur_angle)
 
         iterations = 0
@@ -40,7 +39,17 @@ class PurePursuitExpert:
         point_vec = curve_point - self.env.cur_pos
         point_vec /= np.linalg.norm(point_vec)
 
+        r = (np.random.rand(3) - 0.5) * 2
+        r[1] = 0
+        #point_vec += r
         dot = np.dot(self.env.get_right_vec(), point_vec)
         steering = GAIN * -dot
-
+        
+        #steering += random.uniform(-0.5, 0.5)
+        
+        
+        if user_input == "right":
+            steering = -3
+        elif user_input == "left":
+            steering = 3
         return self.ref_velocity, steering

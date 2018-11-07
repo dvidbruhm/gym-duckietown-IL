@@ -3,12 +3,36 @@ from gym_duckietown.envs import DuckietownEnv
 from teacher import PurePursuitExpert
 from _loggers import Logger
 
+import pygame
+pygame.init()
+windowSurface = pygame.display.set_mode((50, 50), 0, 32)
+windowSurface.fill((0,0,0))
+key = "no input"
+
+def get_user_direction():
+    global key
+    
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                key = "left"
+            elif event.key == pygame.K_d:
+                key = "right"
+        if event.type == pygame.KEYUP:
+            key = "no input"
+
+    print("KEYYYY          ", key)
+
+    return key
+
+
+
 # Log configuration, you can pick your own values here
 # the more the better? or the smarter the better?
 EPISODES = 10
-STEPS = 512
+STEPS = 1024
 
-DEBUG = False
+DEBUG = True
 
 env = DuckietownEnv(
     map_name='udem1',  # check the Duckietown Gym documentation, there are many maps of different complexity
@@ -24,8 +48,11 @@ logger = Logger(env, log_file='train.log')
 # let's collect our samples
 for episode in range(0, EPISODES):
     for steps in range(0, STEPS):
+
+        key = get_user_direction()
+
         # we use our 'expert' to predict the next action.
-        action = expert.predict(None)
+        action = expert.predict(None, user_input=key)
         observation, reward, done, info = env.step(action)
         # we can resize the image here
         observation = cv2.resize(observation, (80, 60))

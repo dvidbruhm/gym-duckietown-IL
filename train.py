@@ -5,7 +5,7 @@ from _loggers import Reader
 from model import TensorflowModel
 
 # configuration zone
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 EPOCHS = 10
 # here we assume the observations have been resized to 60x80
 OBSERVATIONS_SHAPE = (None, 60, 80, 3)
@@ -18,6 +18,8 @@ reader = Reader('train.log')
 observations, actions = reader.read()
 actions = np.array(actions)
 observations = np.array(observations)
+
+print("Nb of data : ", len(observations))
 
 model = TensorflowModel(
     observation_shape=OBSERVATIONS_SHAPE,  # from the logs we've got

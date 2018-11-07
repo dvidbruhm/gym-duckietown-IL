@@ -22,15 +22,15 @@ def _residual_block(x, size, dropout=False, dropout_prob=0.5, seed=None):
     return residual
 
 
-def one_residual(x, keep_prob=0.5, seed=None):
-    nn = tf.layers.conv2d(x, filters=32, kernel_size=5, strides=2, padding='same',
+def one_residual(x, keep_prob=0.5, seed=None, nb_filters=32):
+    nn = tf.layers.conv2d(x, filters=nb_filters, kernel_size=5, strides=2, padding='same',
                           kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
                           kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
     nn = tf.layers.max_pooling2d(nn, pool_size=3, strides=2)
 
-    rb_1 = _residual_block(nn, 32, dropout_prob=keep_prob, seed=seed)
+    rb_1 = _residual_block(nn, nb_filters, dropout_prob=keep_prob, seed=seed)
 
-    nn = tf.layers.conv2d(nn, filters=32, kernel_size=1, strides=2, padding='same',
+    nn = tf.layers.conv2d(nn, filters=nb_filters, kernel_size=1, strides=2, padding='same',
                           kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
                           kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
     nn = tf.keras.layers.add([rb_1, nn])
