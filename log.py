@@ -4,10 +4,16 @@ from teacher import PurePursuitExpert
 from _loggers import Logger
 
 import pygame
-pygame.init()
-windowSurface = pygame.display.set_mode((50, 50), 0, 32)
-windowSurface.fill((0,0,0))
+
+
+USER_INPUT = False
 key = "no input"
+
+if USER_INPUT:
+    pygame.init()
+    windowSurface = pygame.display.set_mode((50, 50), 0, 32)
+    windowSurface.fill((0,0,0))
+
 
 def get_user_direction():
     global key
@@ -21,18 +27,16 @@ def get_user_direction():
         if event.type == pygame.KEYUP:
             key = "no input"
 
-    print("KEYYYY          ", key)
-
     return key
 
 
 
 # Log configuration, you can pick your own values here
 # the more the better? or the smarter the better?
-EPISODES = 10
-STEPS = 1024
+EPISODES = 200
+STEPS = 300
 
-DEBUG = True
+DEBUG = False
 
 env = DuckietownEnv(
     map_name='udem1',  # check the Duckietown Gym documentation, there are many maps of different complexity
@@ -48,17 +52,21 @@ logger = Logger(env, log_file='train.log')
 # let's collect our samples
 for episode in range(0, EPISODES):
     for steps in range(0, STEPS):
-
-        key = get_user_direction()
-
-        # we use our 'expert' to predict the next action.
-        action = expert.predict(None, user_input=key)
-        observation, reward, done, info = env.step(action)
-        # we can resize the image here
-        observation = cv2.resize(observation, (80, 60))
-        # NOTICE: OpenCV changes the order of the channels !!!
-        observation = cv2.cvtColor(observation, cv2.COLOR_BGR2RGB)
-
+        
+        if USER_INPUT:
+            key = get_user_direction()
+        
+        try:
+            # we use our 'expert' to predict the next action.
+            action = expert.predict(None, user_input=key)
+            observation, reward, done, info = env.step(action)
+            # we can resize the image here
+            observation = cv2.resize(observation, (80, 60))
+            # NOTICE: OpenCV changes the order of the channels !!!
+            observation = cv2.cvtColor(observation, cv2.COLOR_BGR2RGB)
+        except:
+            print("ERRRRRRRRRRRRRRRRRROR")
+            break
         # we may use this to debug our expert.
         if DEBUG:
             cv2.imshow('debug', observation)

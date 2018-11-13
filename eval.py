@@ -1,6 +1,11 @@
 from model import TensorflowModel
+
+from pytorch_model import PytorchTrainer
+
 from gym_duckietown.envs import DuckietownEnv
 import cv2
+
+from wrappers import steering_to_wheel
 
 # configuration zone
 # yes, remember the simulator give us an outrageously large image
@@ -10,7 +15,7 @@ ACTIONS_SHAPE = (None, 2)
 SEED = 1234
 STORAGE_LOCATION = "trained_models/behavioral_cloning"
 EPISODES = 10
-STEPS = 65
+STEPS = 300
 DEBUG = True
 
 env = DuckietownEnv(
@@ -19,12 +24,14 @@ env = DuckietownEnv(
     domain_rand=False
 )
 
-model = TensorflowModel(
-    observation_shape=OBSERVATIONS_SHAPE,  # from the logs we've got
-    action_shape=ACTIONS_SHAPE,  # same
-    graph_location=STORAGE_LOCATION,  # where do we want to store our trained models
-    seed=SEED  # to seed all random operations in the model (e.g., dropout)
-)
+#model = TensorflowModel(
+#    observation_shape=OBSERVATIONS_SHAPE,  # from the logs we've got
+#    action_shape=ACTIONS_SHAPE,  # same
+#    graph_location=STORAGE_LOCATION,  # where do we want to store our trained models
+#    seed=SEED  # to seed all random operations in the model (e.g., dropout)
+#)
+
+model = PytorchTrainer().load().eval()
 
 observation = env.reset()
 
@@ -34,7 +41,10 @@ cumulative_reward = 0.0
 for episode in range(0, EPISODES):
     for steps in range(0, STEPS):
         action = model.predict(observation)
-        action[1] *= -1
+        print("---------------")
+        print(action)
+        action = steering_to_wheel(action)
+        print(action)
         observation, reward, done, info = env.step(action)
         cumulative_reward += reward
         if DEBUG:
@@ -50,4 +60,4 @@ print('total reward: {}, mean reward: {}'.format(cumulative_reward, cumulative_r
 # didn't look good, ah? Well, that's where you come into the stage... good luck!
 
 env.close()
-model.close()
+#model.close()

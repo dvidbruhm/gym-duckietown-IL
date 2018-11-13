@@ -1,0 +1,6 @@
+challenge: aido1_LF1_r3-v3
+protocol: aido1_remote3-v3
+user-label: "Pytorch IL"
+user-payload: {}
+description: |
+    IL from simulation with a CNN using pytorch
